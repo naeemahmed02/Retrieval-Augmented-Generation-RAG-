@@ -48,6 +48,6 @@ class ContentExtractor:
             
 
 if __name__== "__main__":
-    ext_obj = ContentExtractor(source_link="https://en.wikipedia.org/wiki/Artificial_intelligence")
+    ext_obj = ContentExtractor(file_path="sample.pdf")
     content = ext_obj.extractor()
     print(content[:500])
