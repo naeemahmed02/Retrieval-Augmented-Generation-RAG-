@@ -1,5 +1,6 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from content_extractor import ContentExtractor
+from content_preprocessor import ContentPreprocessor
 from typing import List
 import logging
 
@@ -39,9 +40,12 @@ if __name__ == "__main__":
     try:
         ext_obj = ContentExtractor(file_path="sample.pdf")
         content = ext_obj.extractor()
+        
+        preprocessor = ContentPreprocessor(content)
+        processed_text = preprocessor.preprocess()
 
         chunker_obj = ContentChunker()
-        chunks = chunker_obj.text_chunker(content)
+        chunks = chunker_obj.text_chunker(processed_text)
 
         print(f"First chunk (length={len(chunks[0])}):\n{chunks[0]}")
 
