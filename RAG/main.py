@@ -4,10 +4,7 @@ import os
 if __name__ == "__main__":
     os.environ["GOOGLE_API_KEY"] = "AIzaSyAdyt8Gf0IrybxrZvfdSiqXCFUmBnHY3Kw"
 
-    pipeline = RAGPipeline(
-        file_path="resources/Deep Learning Interview questions.pdf",
-        model_name="gemini-1.5-flash"
-    )
+    pipeline = RAGPipeline(file_path="resources/Deep Learning Interview questions.pdf",model_name="gemini-1.5-flash")
     
     pipeline.build_index()
     
