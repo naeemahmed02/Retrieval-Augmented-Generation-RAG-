@@ -1,0 +1,60 @@
+{% extends 'main.html' %}
+
+{% block title %}DeepContext{% endblock %}
+
+{% block content %}
+<div class="sidebar">
+  <form action="" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {% comment %} {{ upload_form.name.label_tag }}
+    {{ upload_form.name }}
+    {{ upload_form.doc.label_tag }}
+    {{ upload_form.doc }} {% endcomment %}
+    <button type="submit" class="btn btn-primary w-100 mt-2">Upload Document</button>
+  </form>
+
+  <hr>
+
+  <form method="GET" action="">
+    <select name="current_doc" class="form-select" onchange="this.form.submit()">
+      <option selected disabled>Select document</option>
+      {% comment %} {% for doc in documents %}
+        <option value="{{ doc.id }}" {% if current_doc and doc.id == current_doc.id %}selected{% endif %}>
+          {{ doc.name }}
+        </option>
+      {% endfor %} {% endcomment %}
+    </select>
+  </form>
+
+  <hr>
+
+</div>
+
+<div class="chat-container">
+  <div class="chat-box">
+    {% comment %} {% if chat_history %}
+      {% for chat in chat_history %}
+        <div class="message {{ chat.role }}">
+          <div class="chat-content">
+            {{ chat.message|safe }}
+          </div>
+        </div>
+      {% endfor %}
+    {% endif %} {% endcomment %}
+  </div>
+
+    <form action="" method="POST">
+      {% csrf_token %}
+      <div class="input-area">
+        <div class="d-flex gap-2">
+          <input type="text" class="form-control" name="query" placeholder="Ask something...">
+          <input type="hidden" name="current_doc" value="{{ current_doc.id }}">
+          <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </form>
+    <div class="alert alert-info mt-3" role="alert">
+      📄 Please select a document first to ask questions.
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,11 @@
-from content_extractor import ContentExtractor
-from content_preprocessor import ContentPreprocessor
-from content_chunker import ContentChunker
-from content_embeddings import ContentEmbeddings
-from llm_interface import LLMInterface
+from RAG.content_extractor import ContentExtractor
+from RAG.content_preprocessor import ContentPreprocessor
+from RAG.content_chunker import ContentChunker
+from RAG.content_embeddings import ContentEmbeddings
+from RAG.llm_interface import LLMInterface
+from chat.models import Document, DocumentChunk, ChatSession, ChatMemory
+from django.utils.text import slugify
+import os
 
 
 class RAGPipeline:
@@ -54,6 +57,24 @@ class RAGPipeline:
         self.embeddings = embedder.generate_embeddings()
         self.index = embedder.create_faiss_index(self.index_path)
         self.embedder = embedder
+        
+        doc_name = os.path.basename(self.file_path)
+        doc_slug = slugify(doc_name)
+        
+        # Save doc metadata
+        doc = Document.objects.create(
+            name = doc_name,
+            file = self.file_path
+        )
+        
+        # Save each chunk in database
+        for idx, chunk in enumerate(self.chunks):
+            if not DocumentChunk.objects.filter(vector_id = idx).exists():
+                 DocumentChunk.objects.create(
+                    vector_id=idx,
+                    document=doc,
+                    text=chunk,
+    )
 
     def query(self, user_question: str, top_k: int = 3) -> str:
         """
