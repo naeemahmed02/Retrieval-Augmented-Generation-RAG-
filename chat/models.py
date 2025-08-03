@@ -1,5 +1,6 @@
 from django.db import models
 from uuid import uuid4
+import uuid
 
 # Create your models here.
 class Document(models.Model):
@@ -14,7 +15,7 @@ class Document(models.Model):
     
 class DocumentChunk(models.Model):
     document = models.ForeignKey(Document, on_delete=models.CASCADE, related_name='chunks')
-    vector_id = models.BigIntegerField(unique=True)
+    vector_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     text = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 

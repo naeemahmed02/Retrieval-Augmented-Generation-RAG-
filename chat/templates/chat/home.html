@@ -1,48 +1,285 @@
 {% extends 'main.html' %}
 
-{% block title %}DeepContext{% endblock %}
-
 {% block content %}
-
 <div class="container-fluid">
   <div class="row h-100">
+
     <!-- Sidebar -->
     <div class="col-md-3 sidebar d-flex flex-column justify-content-between">
       <div>
-        <h5 class="text-white">Conversations</h5>
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Search..." />
-        </div>
-        <div class="mb-3">
-          <label class="form-label text-white">File Collection</label>
-          <select class="form-select mb-2">
-            <option>Search All</option>
-            <option>Search in File(s)</option>
-          </select>
-        </div>
+        <h4>📁 DeepContext</h4>
 
-        <form action="{% url 'home' %}" method="POST" enctype="multipart/form-data">
+        <!-- Search Bar (static placeholder) -->
+        <input type="text" class="form-control mb-3" placeholder="🔍 Search..." />
+
+        <!-- Document Selector -->
+        <label class="form-label text-light">📚 File Collection</label>
+        <form method="GET" class="mb-3">
+          <select class="form-select" name="selected_doc" required>
+            <option disabled {% if not request.GET.selected_doc %}selected{% endif %}>Select Document</option>
+            {% for doc in all_documents %}
+              <option value="{{ doc.id }}" {% if request.GET.selected_doc == doc.id|stringformat:"s" %}selected{% endif %}>
+                {{ doc.name }}
+              </option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-outline-light w-100 mt-2">Use Document</button>
+        </form>
+
+        <!-- Document Upload -->
+        <form action="{% url 'home' %}?{% if request.GET.selected_doc %}selected_doc={{ request.GET.selected_doc }}{% endif %}" method="POST" enctype="multipart/form-data">
           {% csrf_token %}
-          <div class="mb-3">
-            <label class="form-label text-white">Quick Upload</label>
-            <div class="border p-3 text-center" style="background-color: #2a2a2a;">
-              <p>
-                Drop File Here<br />- or -<br />
-                <a href="#" class="text-info">Click to Upload</a>
-              </p>
-            </div>
+          <input type="hidden" name="form_type" value="upload_form" />
+          <label class="form-label text-light mt-3">📤 Quick Upload</label>
+          <div class="border p-3 rounded bg-dark-subtle">
+            {{ form }}
+            <button type="submit" class="btn btn-primary mt-2 w-100">Upload</button>
           </div>
         </form>
       </div>
 
       <!-- New Chat Button -->
-      <div class="mb-3 text-center">
-        <a href="{% url 'new_chat' %}" class="btn btn-outline-light w-100">+ New Chat</a>
-      </div>
+      <a href="{% url 'new_chat' %}" class="btn btn-success w-100 mt-3">+ New Chat</a>
     </div>
 
     <!-- Chat Panel -->
-    <div class="col-md-6 d-flex flex-column p-0 chat-container">
+    <div class="col-md-6 chat-container d-flex flex-column">
+      <div class="chat-box overflow-auto flex-grow-1">
+        {% if chat_history %}
+          {% for chat in chat_history %}
+            <div class="message user">
+              <div class="chat-content">{{ chat.user_query|safe }}</div>
+            </div>
+            <div class="message assistant">
+              <div class="chat-content">{{ chat.ai_response|safe }}</div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <p class="text-muted">No conversation yet.</p>
+        {% endif %}
+      </div>
+
+      <!-- Message Form -->
+      <form action="?{% if request.GET.selected_doc %}selected_doc={{ request.GET.selected_doc }}{% endif %}" method="POST" class="chat-input mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="message_form" />
+        <div class="input-group">
+          <input type="text" name="q" class="form-control shadow-none" placeholder="Type a message..." required autofocus />
+          <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info Panel -->
+    <!-- Info Panel -->
+<div class="col-md-3 info-panel">
+  <h5>🗂️ Sessions</h5>
+  {% if all_session %}
+    <ul class="list-group list-group-flush">
+      {% for session in all_session %}
+        <a href="{% url 'switch_session' session.session_id %}" class="text-decoration-none">
+          <li class="list-group-item bg-transparent text-white border-bottom">
+            {{ session.title|default:"Untitled Session" }}
+          </li>
+        </a>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No sessions found.</p>
+  {% endif %}
+</div>
+
+
+  </div>
+</div>
+
+<!-- Scroll chat to bottom -->
+<script>
+  window.onload = () => {
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+  };
+</script>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'main.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row h-100">
+
+    <!-- Sidebar -->
+    <div class="col-md-3 sidebar d-flex flex-column justify-content-between">
+      <div>
+        <h4>📁 DeepContext</h4>
+        <input type="text" class="form-control mb-3" placeholder="🔍 Search..." />
+
+        <label class="form-label text-light">📚 File Collection</label>
+        <form action="" method="GET" class="mb-3">
+          <select class="form-select" name="selected_doc">
+            <option disabled {% if not request.GET.selected_doc %}selected{% endif %}>Search Document</option>
+            {% for doc in all_documents %}
+              <option value="{{ doc.id }}" {% if request.GET.selected_doc == doc.id|stringformat:"s" %}selected{% endif %}>
+                {{ doc }}
+              </option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-outline-light w-100 mt-2">Select File</button>
+        </form>
+
+        <form action="{% url 'home' %}?{% if request.GET.selected_doc %}selected_doc={{ request.GET.selected_doc }}{% endif %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="upload_form" />
+          <label class="form-label text-light">📤 Quick Upload</label>
+          <div class="border p-3 rounded bg-dark-subtle">
+            {{ form }}
+            <button type="submit" class="btn btn-primary mt-2 w-100">Upload</button>
+          </div>
+        </form>
+      </div>
+      <a href="{% url 'new_chat' %}" class="btn btn-success w-100 mt-3">+ New Chat</a>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="col-md-6 chat-container d-flex flex-column">
+      <div class="chat-box overflow-auto flex-grow-1">
+        {% if chat_history %}
+          {% for chat in chat_history %}
+            <div class="message user">
+              <div class="chat-content">{{ chat.user_query|linebreaksbr|escape }}</div>
+            </div>
+            <div class="message assistant">
+              <div class="chat-content">{{ chat.ai_response|linebreaksbr|escape }}</div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <form action="?{% if request.GET.selected_doc %}selected_doc={{ request.GET.selected_doc }}{% endif %}" method="POST" class="chat-input mt-2">
+        {% csrf_token %}
+        <input type="hidden" name="form_type" value="message_form" />
+        <div class="input-group">
+          <input type="text" name="q" class="form-control shadow-none" placeholder="Type a message..." required autofocus />
+          <button type="submit" class="btn btn-primary">Send</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Info Panel -->
+    <div class="col-md-3 info-panel">
+      <h5>🗂️ Sessions</h5>
+      {% if all_session %}
+        <ul class="list-group list-group-flush">
+          {% for session in all_session %}
+            <li class="list-group-item bg-transparent text-white border-bottom {% if session.session_id == request.session.session_id %}fw-bold text-warning{% endif %}">
+              {{ session.title|default:session.session_id }}
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="text-light">No sessions found.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  // Auto scroll to bottom on page load
+  window.onload = () => {
+    const chatBox = document.querySelector('.chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+  };
+</script>
+{% endblock %} {% endcomment %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{% comment %} {% extends 'main.html' %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row h-100">
+
+    <!-- Sidebar -->
+    <div class="col-md-3 sidebar d-flex flex-column justify-content-between">
+      <div>
+        <h4>📁 DeepContext</h4>
+        <input type="text" class="form-control mb-3" placeholder="🔍 Search..." />
+
+        <label class="form-label text-light">📚 File Collection</label>
+        <form action="" method="GET" class="mb-3">
+          <select class="form-select" name="selected_doc">
+            <option disabled selected>Search Document</option>
+            {% for doc in all_documents %}
+              <option value="{{ doc.id }}">{{ doc }}</option>
+            {% endfor %}
+          </select>
+          <button type="submit" class="btn btn-outline-light w-100 mt-2">Select File</button>
+        </form>
+
+        <form action="{% url 'home' %}" method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="form_type" value="upload_form" />
+          <label class="form-label text-light">📤 Quick Upload</label>
+          <div class="border p-3 rounded bg-dark-subtle">
+            {{ form }}
+            <button type="submit" class="btn btn-primary mt-2 w-100">Upload</button>
+          </div>
+        </form>
+      </div>
+      <a href="{% url 'new_chat' %}" class="btn btn-success w-100 mt-3">+ New Chat</a>
+    </div>
+
+    <!-- Chat Panel -->
+    <div class="col-md-6 chat-container">
       <div class="chat-box">
         {% if chat_history %}
           {% for chat in chat_history %}
@@ -56,28 +293,29 @@
         {% endif %}
       </div>
 
-      <form action="" method="POST">
+      <form action="" method="POST" class="chat-input">
         {% csrf_token %}
-        <div class="chat-input">
-          <div class="input-group">
-            <input type="text" name="q" class="form-control" placeholder="Chat input" />
-            <button type="submit" class="btn btn-primary">Send</button>
-          </div>
+        <input type="hidden" name="form_type" value="message_form" />
+        <div class="input-group">
+          <input type="text" name="q" class="form-control shadow-none" placeholder="Type a message..." />
+          <button type="submit" class="btn btn-primary">Send</button>
         </div>
       </form>
     </div>
 
     <!-- Info Panel -->
     <div class="col-md-3 info-panel">
-      <h6 class="text-white">Chats</h6>
-      <!-- Dynamic content goes here -->
+      <h5>🗂️ Sessions</h5>
       {% if all_session %}
-        {% for session in all_session %}
-          <p>{{session}}</p>
-        {% endfor %}
+        <ul class="list-group list-group-flush">
+          {% for session in all_session %}
+            <li class="list-group-item bg-transparent text-white border-bottom">{{ session }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No sessions found.</p>
       {% endif %}
     </div>
   </div>
 </div>
-
-{% endblock %}
+{% endblock %} {% endcomment %}

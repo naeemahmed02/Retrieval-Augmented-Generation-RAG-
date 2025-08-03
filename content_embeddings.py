@@ -2,6 +2,7 @@ from typing import List, Optional
 from sentence_transformers import SentenceTransformer
 import numpy as np
 import faiss
+import os
 import logging
 
 logging.basicConfig(level=logging.INFO)
@@ -57,6 +58,7 @@ class ContentEmbeddings:
         return self.model.encode(
             texts, convert_to_numpy=True, normalize_embeddings=True
         )
+        
 
     def create_faiss_index(self, index_path: str = "faiss_index.index") -> faiss.Index:
         """
@@ -83,3 +85,25 @@ class ContentEmbeddings:
         logging.info(f"FAISS index saved to {index_path} with {index.ntotal} vectors.")
 
         return index
+    
+    
+    def load_faiss_index(self, index_path: str = "faiss_index.index") -> faiss.Index:
+        """
+        Loads a FAISS index from disk.
+
+        Args:
+            index_path (str): Path to the FAISS index file.
+
+        Returns:
+            faiss.Index: The loaded FAISS index.
+
+        Raises:
+            FileNotFoundError: If the index file does not exist.
+        """
+        if not os.path.exists(index_path):
+            raise FileNotFoundError(f"FAISS index file not found: {index_path}")
+
+        index = faiss.read_index(index_path)
+        logging.info(f"FAISS index loaded from {index_path} with {index.ntotal} vectors.")
+        return index
+
