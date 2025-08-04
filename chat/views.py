@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.conf import settings
 from django.utils.crypto import get_random_string
 from django.core.files.storage import default_storage
+from django.db.models import Q
 
 from chat.models import Document, DocumentChunk, ChatSession, ChatMemory
 from .forms import DocumentUploadForm
@@ -25,6 +26,7 @@ def home(request):
     answer = None
     form = DocumentUploadForm()
     selected_doc = None
+    search = ""
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
@@ -81,7 +83,8 @@ def home(request):
 
     # All sessions & history
     chat_history = chat_session.messages.order_by("timestamp")
-    all_session = ChatSession.objects.all().order_by("-created_at")
+    search = request.GET.get("search")
+    all_session = ChatSession.objects.filter(Q(title__icontains=search)) if search else ChatSession.objects.all().order_by("-created_at")
     all_documents = Document.objects.all()
 
     context = {
@@ -94,7 +97,7 @@ def home(request):
         "selected_doc": selected_doc,
     }
 
-    return render(request, "chat/index.html", context)
+    return render(request, "chat/home.html", context)
 
 
 def new_chat(request):

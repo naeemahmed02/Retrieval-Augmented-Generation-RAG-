@@ -10,8 +10,9 @@
         <h4>📁 DeepContext</h4>
 
         <!-- Search Bar (static placeholder) -->
-        <input type="text" class="form-control mb-3" placeholder="🔍 Search..." />
-
+         <form action="{% url 'home' %}" method="GET">
+        <input type="text" name="search" class="form-control mb-3" placeholder="🔍 Search..." />
+          </form>
         <!-- Document Selector -->
         <label class="form-label text-light">📚 File Collection</label>
         <form method="GET" class="mb-3">
