@@ -28,9 +28,13 @@ def login_page(request):
 
 
 def register(request):
+    print("View accessed")
     if request.method == "POST":
+        print("Post request")
         form = UserRegistrationForm(request.POST)
+        print(form.errors)
         if form.is_valid():
+            print("Valid form")
             account = form.save(commit=False)
             print(account)
             account.set_password(form.cleaned_data["password"])  # hash the password

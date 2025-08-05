@@ -30,9 +30,11 @@ def home(request):
 
     if request.method == "POST":
         form_type = request.POST.get("form_type")
+        print(form_type)
 
         if form_type == "message_form":
             query = request.POST.get("q")
+            print(query)
             selected_doc_id = request.POST.get("selected_doc") or request.GET.get("selected_doc")
 
             if selected_doc_id:
@@ -97,7 +99,7 @@ def home(request):
         "selected_doc": selected_doc,
     }
 
-    return render(request, "chat/home.html", context)
+    return render(request, "chat/index.html", context)
 
 
 def new_chat(request):
