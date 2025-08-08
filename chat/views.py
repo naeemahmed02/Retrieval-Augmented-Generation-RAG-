@@ -7,11 +7,12 @@ from django.db.models import Q
 from chat.models import Document, DocumentChunk, ChatSession, ChatMemory
 from .forms import DocumentUploadForm
 from rag_pipeline import RAGPipeline
+from django.contrib.auth.decorators import login_required
 
 import os
 import uuid
 
-
+@login_required(login_url="login")
 def home(request):
     # Initialize or retrieve session_id
     session_id = request.session.get("session_id")
@@ -113,6 +114,8 @@ def switch_session(request, session_id):
     session = get_object_or_404(ChatSession, session_id = session_id)
     request.session['session_id'] = session.session_id
     return redirect('home')
+
+
 
 
 

@@ -48,4 +48,4 @@ def register(request):
 
 def logout_page(request):
     logout(request)
-    return redirect('todo-list')
+    return redirect('login')

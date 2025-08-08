@@ -29,13 +29,7 @@
         <!-- Document Name -->
         <div>
           <label for="id_first_name" class="block text-sm text-gray-300 mb-1">Doc Name</label>
-          <input 
-            type="text" 
-            name="first_name" 
-            id="id_first_name"
-            class="w-full px-3 py-2 text-sm text-white bg-[#1E1E24] border border-gray-600 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          >
+          {{form.name}}
           {% if form.first_name.errors %}
             <p class="text-red-400 text-xs mt-1">{{ form.first_name.errors.0 }}</p>
           {% endif %}
@@ -44,17 +38,7 @@
         <!-- File Uploader -->
         <div>
           <label for="id_document" class="block text-sm text-gray-300 mb-1">Upload File</label>
-          <input 
-            type="file" 
-            name="document" 
-            id="id_document"
-            accept=".pdf,.doc,.docx,.txt" 
-            class="block w-full text-sm text-white bg-[#1E1E24] border border-gray-600 rounded px-3 py-2 
-                   file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 
-                   file:text-sm file:font-medium file:bg-indigo-500 file:text-white 
-                   hover:file:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          >
+          {{form.file}}
           {% if form.document.errors %}
             <p class="text-red-400 text-xs mt-1">{{ form.document.errors.0 }}</p>
           {% endif %}
@@ -83,13 +67,13 @@
     <div class="flex items-center gap-3 bg-[#27272A] p-3 rounded">
       <img src="https://via.placeholder.com/32" alt="User" class="rounded-full w-8 h-8">
       <div class="hidden md:block">
-        <p class="text-sm font-semibold">Naeem Ahmed</p>
-        <p class="text-xs text-gray-400">naeemahmed02@gmail.com</p>
+        <p class="text-sm font-semibold">{{request.user.first_name}}</p>
+        <p class="text-xs text-gray-400">{{request.user.email}}</p>
       </div>
     </div>
 
     <div class="flex justify-between mt-3 text-xs text-gray-400">
-      <button>Log out</button>
+      <a href="{% url 'logout' %}">Log out</a>
       <div class="flex gap-2">
         <button>Light</button>
         <button class="text-white font-bold">•</button>

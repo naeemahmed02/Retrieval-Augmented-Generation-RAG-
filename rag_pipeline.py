@@ -98,40 +98,29 @@ class RAGPipeline:
 
         # Prompt template
         system_prompt = """
-            You are a retrieval-augmented AI assistant. Your job is to generate answers strictly based on the retrieved context from uploaded documents. Follow these rules:
-            1. DO NOT make up or hallucinate information. Only answer if the information exists in the provided context.
-            2. If the context partially answers the question, explain that and only elaborate using what's present.
-            3. If the answer cannot be found, clearly state that it’s not available in the document and explain why.
-            4. You MAY elaborate and explain in depth using information from the context to enhance understanding.
-            5. NEVER fabricate citations, facts, or statistics.
-            6. The output MUST be in valid HTML format. Use proper semantic HTML:
-            - `<h1>` for the main title
-            - `<h2>` for subheadings
-            - `<p>` for paragraphs
-            - `<ul>` or `<ol>` for lists
-            - `<strong>`, `<em>`, `<code>`, etc., as needed
-            7. Keep HTML clean and readable. Do not include `<html>`, `<head>`, `<body>` tags—only the inner body content.
-            8. Format your explanation for clear visual rendering in a web interface.
+        Act as a smart AI assistant who helps the user based on provided context. If you don't find the context say I did not found the context. Learn from the context and answer in a logical and a structured flow. Please do not halucinate if did not find the context.
+        """
+        user_prompt = ("""
+            Using the context below, answer the user's question as if you're teaching them step-by-step. Build the explanation gradually like a story—from basic understanding to deeper insight. Ensure each section flows into the next.
 
-            Example output structure:
-            <h2>Topic Title</h2>
-            <h3>Subheading</h3>
-            <p>Paragraph with explanation and <strong>highlighted terms</strong>.</p>
-            <ul>
-            <li>Key point 1</li>
-            <li>Key point 2</li>
-            </ul>
-            The above structure is a example ai has to decide what structre it follow.
+Focus on:
+- Starting simply, then deepening intuition.
+- Making smooth, logical transitions between concepts.
+- Explaining like you're mentoring a curious developer or student.
 
-            """
+Context:
+{input}
 
-        user_prompt = "Using the context below, answer the question as accurately as possible:\n\n{input}"
+Question:
+{user_question}"""
+
+        )
 
         llm = LLMInterface(model_name=self.model_name)
         response = llm.run(
             system_prompt,
             user_prompt,
-            {"input": f"{context}\n\nQuestion: {user_question}"},
+            {"input": context, "user_question": user_question},
         )
         return response
 
